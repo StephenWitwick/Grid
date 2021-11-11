@@ -1,0 +1,21 @@
+body{
+    background-color: dimgrey;
+}
+#game{
+    background-color: darkgray;
+    margin: auto;
+}
+#stage{
+    background: url('Textures/15x9.png');
+    background-size: 100% 100%;
+    margin-top: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 93.75%;
+    height: 75%;
+}
+#player{
+    background: url('Textures/Player.png');
+    background-size: 100% 100%;
+    position: relative;
+}
