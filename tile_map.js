@@ -8,8 +8,6 @@ var tilesInRow7 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 var tilesInRow8 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 var tilesInRow9 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 
-var enemyMap = [];
-
 /*Tilemap key
 
 0 - Nothing
@@ -77,3 +75,77 @@ document.addEventListener('click', function(event) {
     console.log(tilesInRow8);
     console.log(tilesInRow9);
 });
+
+const roomSpecificEnemies = [
+    //room 1
+    [
+        //enemy 1
+        ['enemy1','warrior',1,6,0,1/20]
+    ],
+
+    //room 2
+    [
+        //enemy 1
+        [],
+
+        //enemy 2
+        [],
+
+        //enemy 3
+        []
+    ],
+
+    //room3
+    [
+        [],
+        [],
+        []
+    ]
+];
+
+var allNonplayerEntities = [];
+
+var enemyData = [];
+
+function uploadEnemyData(
+    id,type,tier,x,y,priorHeading,currentHeading,
+    leftCooldown,rightCooldown,upCooldown,downCooldown,
+    isMoving,movementPerFrame,motionIndex
+){
+    const data = [
+        id,type,tier,x,y,priorHeading,currentHeading,
+        leftCooldown,rightCooldown,upCooldown,downCooldown,
+        isMoving,movementPerFrame,motionIndex
+    ];
+    enemyData[id - 1] = data;
+};
+
+/*
+id starts at 1 not 0
+type is enemy type (warrior, ranger, etc)
+tier starts at 1
+
+*/
+
+function spawnEnemy(
+    setId,spawnType,spawnTier,spawnX,spawnY,spawnMovementPerFrame
+){
+    const enemy = document.createElement('img');
+    enemy.id = setId;
+    enemy.src = 'Textures/Player.png';
+    allNonplayerEntities.push(enemy);
+    stage.appendChild(enemy);
+    uploadEnemyData(
+        setId,spawnType,spawnTier,spawnX,spawnY,'none','none',0,0,0,0,
+        0,spawnMovementPerFrame,motionIndex
+    );
+};
+
+function spawnRoomSpecificEnemies(roomNumber){
+    const thisRoom = roomSpecificEnemies[roomNumber - 1];
+    var thisEnemy;
+    for(let i = 0; i < thisRoom.length; i++){
+        thisEnemy = thisRoom[i];
+        spawnEnemy(thisEnemy[0],thisEnemy[1],thisEnemy[2],thisEnemy[3],thisEnemy[4],thisEnemy[5]);
+    }
+};
