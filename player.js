@@ -1,15 +1,16 @@
 var player = document.getElementById('player');
 var playerX = 0, playerY = 0;
 var a=0,d=0,w=0,s=0;
-var priorPlayerHeading;
+var priorPlayerHeading = 'none';
 var currentPlayerHeading = 'none';
 var playerLeftCooldown = 0, playerRightCooldown = 0, playerUpCooldown = 0, playerDownCooldown = 0;
 var isPlayerMoving = 0;
-var playerMovementPerFrame = 1/10, playerMotionIndex = 0;
+var playerMovementPerFrame = 1/10; 
+var playerMotionIndex = 0;
 
 function loadPlayerPosition(){
     playerX = Math.round(100*playerX)/100;
-    playerY = Math.round(100*playerY)/100
+    playerY = Math.round(100*playerY)/100;
     uploadTileMap(Math.floor(playerX),Math.floor(playerY),3);
     uploadTileMap(Math.floor(playerX),Math.ceil(playerY),3);
     uploadTileMap(Math.ceil(playerX),Math.floor(playerY),3);
@@ -18,31 +19,31 @@ function loadPlayerPosition(){
 
 function playerMovementCooldown(){
     if(currentPlayerHeading == 'left'){
-        playerLeftCooldown = (1000 / game.fps) * 0.8 / playerMovementPerFrame;
+        playerLeftCooldown = (1000 / fps) * 0.8 / playerMovementPerFrame;
         currentPlayerHeading = 'none';
         setTimeout(clearPlayerMovementCooldown,playerLeftCooldown);
     }
-    if(currentPlayerHeading == 'right'){
-        playerRightCooldown = (1000 / game.fps) * 0.8 / playerMovementPerFrame;
+    else if(currentPlayerHeading == 'right'){
+        playerRightCooldown = (1000 / fps) * 0.8 / playerMovementPerFrame;
         currentPlayerHeading = 'none';
         setTimeout(clearPlayerMovementCooldown,playerRightCooldown);
     }
-    if(currentPlayerHeading == 'up'){
-        playerUpCooldown = (1000 / game.fps) * 0.8 / playerMovementPerFrame;
+    else if(currentPlayerHeading == 'up'){
+        playerUpCooldown = (1000 / fps) * 0.8 / playerMovementPerFrame;
         currentPlayerHeading = 'none';
         setTimeout(clearPlayerMovementCooldown,playerUpCooldown);
     }
-    if(currentPlayerHeading == 'down'){
-        playerDownCooldown = (1000 / game.fps) * 0.8 / playerMovementPerFrame;
+    else if(currentPlayerHeading == 'down'){
+        playerDownCooldown = (1000 / fps) * 0.8 / playerMovementPerFrame;
         currentPlayerHeading = 'none';
         setTimeout(clearPlayerMovementCooldown,playerDownCooldown);
     }
 };
 function clearPlayerMovementCooldown(){
-    playerLeftCooldown=0
-    playerRightCooldown=0
-    playerUpCooldown=0
-    playerDownCooldown=0
+    playerLeftCooldown = 0;
+    playerRightCooldown = 0;
+    playerUpCooldown = 0;
+    playerDownCooldown = 0;
 };
 function playerLeft(){
     currentPlayerHeading = 'left';
@@ -66,6 +67,8 @@ function currentPlayerMotion(){
     }
     else{
         isPlayerMoving = 0;
+        playerX = Math.round(playerX);
+        playerY = Math.round(playerY);
         if(currentPlayerHeading != 'none'){
             playerMovementCooldown();
         }
@@ -105,35 +108,19 @@ function playerMotion(){
     player.style.bottom = `${(1/12) * gameHeight * playerY - (1/3) * gameHeight}px`;
     
     if(a == 1 && playerX >= -6 && isPlayerMoving == 0 && playerLeftCooldown == 0){
+        isPlayerMoving = 1;
         playerLeft();
-        isPlayerMoving = 1;
     }
-    if(d == 1 && playerX <= 6 && isPlayerMoving == 0 && playerRightCooldown == 0){
+    else if(d == 1 && playerX <= 6 && isPlayerMoving == 0 && playerRightCooldown == 0){
+        isPlayerMoving = 1;
         playerRight();
-        isPlayerMoving = 1;
     }
-    if(w == 1 && playerY <= 3 && isPlayerMoving == 0 && playerUpCooldown == 0){
+    else if(w == 1 && playerY <= 3 && isPlayerMoving == 0 && playerUpCooldown == 0){
+        isPlayerMoving = 1;
         playerUp();
-        isPlayerMoving = 1;
     }
-    if(s == 1 && playerY >= -3 && isPlayerMoving == 0 && playerDownCooldown == 0){
+    else if(s == 1 && playerY >= -3 && isPlayerMoving == 0 && playerDownCooldown == 0){
+        isPlayerMoving = 1;
         playerDown();
-        isPlayerMoving = 1;
     }
-};
-function scale(){
-    var w = window.innerWidth;
-    var h = window.innerHeight;
-    if(w/h > gameAspectRatio){
-        gameWidth = h*gameAspectRatio;
-        gameHeight = h;
-    }
-    else{
-        gameWidth = w;
-        gameHeight = w/gameAspectRatio;
-    }
-    game.style.width = `${gameWidth}px`;
-    game.style.height = `${gameHeight}px`;
-    player.style.width = `${gameWidth/16}px`
-    player.style.height = `${gameHeight/12}px`
 };
