@@ -1,0 +1,68 @@
+        const zeroish = 0.01;
+        if((checkOccupiedTile(Math.ceil(zeroish + this.state.x),Math.round(this.state.y)) == 1
+        || checkOccupiedTile(Math.ceil(zeroish + this.state.x),Math.round(this.state.y)) == 4
+        || checkOccupiedTile(Math.ceil(zeroish + this.state.x),Math.round(this.state.y)) == undefined) && this.state.heading == 'right'){
+            this.state.heading = 'none';
+            this.state.x = Math.round(this.state.x);
+            this.state.moveCooldown.right = 1;
+            setTimeout(this.clearMoveCooldown,100);
+        }
+        if((checkOccupiedTile(Math.floor(- zeroish + this.state.x),Math.round(this.state.y)) == 1
+        || checkOccupiedTile(Math.floor(- zeroish + this.state.x),Math.round(this.state.y)) == 4
+        || checkOccupiedTile(Math.floor(- zeroish + this.state.x),Math.round(this.state.y)) == undefined) && this.state.heading == 'left'){
+            this.state.heading = 'none';
+            this.state.x = Math.round(this.state.x);
+            this.state.moveCooldown.left = 1;
+            setTimeout(this.clearMoveCooldown,100);
+        }
+        if((checkOccupiedTile(Math.round(this.state.x),Math.ceil(zeroish + this.state.y)) == 1
+        || checkOccupiedTile(Math.round(this.state.x),Math.ceil(zeroish + this.state.y)) == 4
+        || checkOccupiedTile(Math.round(this.state.x),Math.ceil(zeroish + this.state.y)) == undefined) && this.state.heading == 'up'){
+            this.state.heading = 'none';
+            this.state.y = Math.round(this.state.y);
+            this.state.moveCooldown.up = 1;
+            setTimeout(this.clearMoveCooldown,100);
+        }
+        if((checkOccupiedTile(Math.round(this.state.x),Math.floor(- zeroish + this.state.y)) == 1
+        || checkOccupiedTile(Math.round(this.state.x),Math.floor(- zeroish + this.state.y)) == 4
+        || checkOccupiedTile(Math.round(this.state.x),Math.floor(- zeroish + this.state.y)) == undefined) && this.state.heading == 'down'){
+            this.state.heading = 'none';
+            this.state.y = Math.round(this.state.y);
+            this.state.moveCooldown.down = 1;
+            setTimeout(this.clearMoveCooldown,100);
+        }
+
+
+                            if(checkOccupiedTile(this.state.x + 1, this.state.y) == 1){rightOpen = false;}
+                    if(checkOccupiedTile(this.state.x - 1, this.state.y) == 1){leftOpen = false;}
+                    if(checkOccupiedTile(this.state.x, this.state.y + 1) == 1){upOpen = false;}
+                    if(checkOccupiedTile(this.state.x, this.state.y - 1) == 1){downOpen = false;}
+                    if(checkOccupiedTile(this.state.x + 1, this.state.y) == 3){return;}
+                    if(checkOccupiedTile(this.state.x - 1, this.state.y) == 3){return;}
+                    if(checkOccupiedTile(this.state.x, this.state.y + 1) == 3){return;}
+                    if(checkOccupiedTile(this.state.x, this.state.y - 1) == 3){return;}
+                    if(checkOccupiedTile(this.state.x + 1, this.state.y) == 4){rightOpen = false;}
+                    if(checkOccupiedTile(this.state.x - 1, this.state.y) == 4){leftOpen = false;}
+                    if(checkOccupiedTile(this.state.x, this.state.y + 1) == 4){upOpen = false;}
+                    if(checkOccupiedTile(this.state.x, this.state.y - 1) == 4){downOpen = false;}
+                    if(checkOccupiedTile(this.state.x + 1, this.state.y) == undefined){rightOpen = false;}
+                    if(checkOccupiedTile(this.state.x - 1, this.state.y) == undefined){leftOpen = false;}
+                    if(checkOccupiedTile(this.state.x, this.state.y + 1) == undefined){upOpen = false;}
+                    if(checkOccupiedTile(this.state.x, this.state.y - 1) == undefined){downOpen = false;}
+                    
+                    if(idealHeading1 == 'right' && rightOpen){this.moveRight();}
+                    else if(idealHeading1 == 'left' && leftOpen){this.moveLeft();}
+                    else if(idealHeading1 == 'up' && upOpen){this.moveUp();}
+                    else if(idealHeading1 == 'down' && downOpen){this.moveDown();}
+                    else if(idealHeading2 == 'right' && rightOpen){this.moveRight();}
+                    else if(idealHeading2 == 'left' && leftOpen){this.moveLeft();}
+                    else if(idealHeading2 == 'up' && upOpen){this.moveUp();}
+                    else if(idealHeading2 == 'down' && downOpen){this.moveDown();}
+                    else if(idealHeading2 == 'left' && rightOpen){this.moveRight();}
+                    else if(idealHeading2 == 'right' && leftOpen){this.moveLeft();}
+                    else if(idealHeading2 == 'down' && upOpen){this.moveUp();}
+                    else if(idealHeading2 == 'up' && downOpen){this.moveDown();}
+                    else if(idealHeading1 == 'left' && rightOpen){this.moveRight();}
+                    else if(idealHeading1 == 'right' && leftOpen){this.moveLeft();}
+                    else if(idealHeading1 == 'down' && upOpen){this.moveUp();}
+                    else if(idealHeading1 == 'up' && downOpen){this.moveDown();}
