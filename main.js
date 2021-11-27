@@ -2,12 +2,12 @@ var fps = 30;
 var game = document.getElementById('game');
 var gameAspectRatio = 4/3;
 var gameWidth, gameHeight;
-let loophole1 = document.getElementsByTagName('canvas')
-var canvas = loophole1.namedItem('canvas');
-var ctx = canvas.getContext('2d');
+var loophole1 = document.getElementsByTagName('canvas')
+var stage = loophole1.namedItem('stage');
+var ctx = stage.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 var timeA,timeB,timeDelta;
-let dpi = devicePixelRatio;
+var dpi = devicePixelRatio;
 var currentRoom = 1;
 var tilesInRow1 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 var tilesInRow2 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
@@ -19,17 +19,18 @@ var tilesInRow7 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 var tilesInRow8 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 var tilesInRow9 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 var enemyList = [];
+var strikeList = [];
 
 const rooms = [
     {
         barriers: {
             row1: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            row2: [0,0,0,0,0,1,0,1,1,1,0,1,0,0,0],
+            row2: [0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],
             row3: [0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],
-            row4: [0,0,1,0,0,1,0,0,0,0,0,1,0,0,0],
-            row5: [0,0,1,0,1,1,0,0,0,0,0,1,1,1,0],
+            row4: [0,0,0,0,0,1,1,1,1,0,0,1,1,1,0],
+            row5: [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
             row6: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            row7: [0,0,1,1,1,0,1,1,1,1,1,0,0,0,0],
+            row7: [0,0,1,1,1,0,0,0,1,1,1,0,0,0,0],
             row8: [0,0,0,0,1,0,0,0,1,0,0,0,0,0,0],
             row9: [0,0,0,0,1,0,0,0,1,0,0,0,0,0,0]
         },
@@ -61,6 +62,7 @@ const rooms = [
                     attackCooldown: 0,
                     hp: 100,
                     mana: 100,
+                    damageCooldown: 0
                 },
                 stats: {
                     character: {
@@ -69,7 +71,7 @@ const rooms = [
                         strength: 1,
                         dexterity: 1,
                         constitution: 1,
-                        speed: 4,
+                        speed: 2,
                     },
                     weapon: {
                         piercing: 0,
@@ -88,7 +90,7 @@ const rooms = [
                     renderEntity(this.state.x,this.state.y,'Character_Textures/amber_tier_1.png');
                 },
                 moveCooldown: function(delay){
-                    this.state.moveCooldownIndex = delay / fps;
+                    this.state.moveCooldownIndex = 2 * delay / fps;
                 },
                 moveRight: function(){
                     if(this.state.rightCooldown != 0){return;}
@@ -121,7 +123,7 @@ const rooms = [
                         this.state.upCooldown = 0;
                         this.state.downCooldown = 0;
                     }
-                    if(this.state.movementIndex == 0){
+                    if(this.state.movementIndex < 1){
                         this.state.x = Math.round(this.state.x);
                         this.state.y = Math.round(this.state.y);
                         if(this.state.heading != 'none'){
@@ -293,6 +295,46 @@ const rooms = [
                     else if(idealHeading1 == 'right' && leftOpen){this.moveLeft();}
                     else if(idealHeading1 == 'down' && upOpen){this.moveUp();}
                     else if(idealHeading1 == 'up' && downOpen){this.moveDown();}
+                },
+                damage: function(){
+                    if(this.state.damageCooldown > 0){
+                        this.state.damageCooldown -= 1;
+                        return;
+                    }
+                    this.state.damageCooldown = 0;
+                    for(let i = 0; i < strikeList.length; i++){
+                        let potentialDamage = strikeList[i].charge * player.stats.character.strength * 10;
+                        if(strikeList[i].from == 'player'){
+                            if(strikeList[i].x <= this.state.x 
+                            && strikeList[i].x + strikeList[i].xVect * strikeList[i].now >= this.state.x
+                            && Math.abs(strikeList[i].y - this.state.y) <= 0.5)
+                            {
+                                this.state.hp -= potentialDamage;
+                                this.state.damageCooldown = strikeList[i].duration - strikeList[i].now;
+                            }
+                            else if(strikeList[i].x >= this.state.x 
+                                && strikeList[i].x + strikeList[i].xVect * strikeList[i].now <= this.state.x
+                                && Math.abs(strikeList[i].y - this.state.y) <= 0.5)
+                            {
+                                    this.state.hp -= potentialDamage;
+                                    this.state.damageCooldown = strikeList[i].duration - strikeList[i].now;
+                            }
+                            else if(strikeList[i].y <= this.state.y 
+                                && strikeList[i].y + strikeList[i].yVect * strikeList[i].now >= this.state.y
+                                && Math.abs(strikeList[i].x - this.state.x) <= 0.5)
+                            {
+                                    this.state.hp -= potentialDamage;
+                                    this.state.damageCooldown = strikeList[i].duration - strikeList[i].now;
+                            }
+                            else if(strikeList[i].y >= this.state.y 
+                                && strikeList[i].y + strikeList[i].yVect * strikeList[i].now <= this.state.y
+                                && Math.abs(strikeList[i].x - this.state.x) <= 0.5)
+                            {
+                                    this.state.hp -= potentialDamage;
+                                    this.state.damageCooldown = strikeList[i].duration - strikeList[i].now;
+                            }
+                        }
+                    }
                 }
             }
         ]
@@ -302,10 +344,14 @@ const rooms = [
 var room = rooms[currentRoom - 1];
 
 function fixDpi() {
-    let style_height = +getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
-    let style_width = +getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
-    canvas.setAttribute('height', style_height * dpi);
-    canvas.setAttribute('width', style_width * dpi);
+    let style_height = +getComputedStyle(stage).getPropertyValue("height").slice(0, -2);
+    let style_width = +getComputedStyle(stage).getPropertyValue("width").slice(0, -2);
+    stage.setAttribute('height', style_height * dpi);
+    stage.setAttribute('width', style_width * dpi);
+    let hud_style_height = +getComputedStyle(hud).getPropertyValue("height").slice(0, -2);
+    let hud_style_width = +getComputedStyle(hud).getPropertyValue("width").slice(0, -2);
+    hud.setAttribute('height', hud_style_height * dpi);
+    hud.setAttribute('width', hud_style_width * dpi);
 };
 
 function scale(){   
@@ -321,16 +367,60 @@ function scale(){
     }
     game.style.width = `${gameWidth}px`;
     game.style.height = `${gameHeight}px`;
+    stage.width = 0.98 * gameWidth;
+    stage.height = 0.784 * gameHeight;
 };
 
 function calcX(inputX){
-    let x = (1/15) * canvas.width * inputX + 7/15 * canvas.width;
+    let x = (1/15) * stage.width * inputX + 7/15 * stage.width;
     return x;
 };
 
 function calcY(inputY){
-    let y = -(1/9) * canvas.height * inputY + 4/9 * canvas.height;
+    let y = -(1/9) * stage.height * inputY + 4/9 * stage.height;
     return y;
+};
+
+function strike(x,y,xVect, yVect, charge, now, duration, color){
+    //(maxStrikeParticleSize)
+    let maxPS = 4/12;
+    let xInterval = xVect / duration;
+    let yInterval = yVect / duration;
+    let sizeInterval = (2/3) * maxPS * (charge  - 1/12) / duration;
+    for(let i = 0; i < now + 1; i++){
+        let particleX = x + i * xInterval;
+        let particleY = y + i * yInterval;
+        let particleSize = charge * maxPS - i * sizeInterval;
+        if(particleSize < 1/12){particleSize = 1/12}
+        if(checkOccupiedTile(Math.round(particleX),Math.round(particleY)) == 1){break;}
+        renderParticle(particleX,particleY,particleSize,0,color);
+    }
+};
+
+function renderStrikes(){
+    for(let i = 0; i < strikeList.length; i++){
+        strike(strikeList[i].x,strikeList[i].y,strikeList[i].xVect,strikeList[i].yVect,strikeList[i].charge,strikeList[i].now,strikeList[i].duration,strikeList[i].color);
+        if(strikeList[i].now < strikeList[i].duration){
+            strikeList[i].now++;
+        }
+        else{strikeList.splice(i,1);}
+    }
+};
+
+function renderParticle(x,y,size,angle,color){
+    let w = size * stage.width / 15;
+    let h = size * stage.height / 9;
+    let targetDist = Math.sqrt(calcX(x + 0.5) ** 2 + calcY(y - 0.5) ** 2);
+    let targetAngle = Math.atan(calcY(y - 0.5) / calcX(x + 0.5)) * 180 / Math.PI;
+    let targetRelativeAngle = targetAngle - angle;
+	let targetRelativeX = targetDist * Math.cos(targetRelativeAngle * Math.PI / 180);
+	let targetRelativeY = targetDist * Math.sin(targetRelativeAngle * Math.PI / 180);
+    ctx.fillStyle = color;
+    ctx.save();
+    ctx.rotate(angle * Math.PI / 180);
+    ctx.translate(targetRelativeX,targetRelativeY);
+    ctx.fillRect(-w/2,-h/2,w,h);
+    ctx.restore();
 };
 
 function renderEntity(x,y,texture){
@@ -341,7 +431,7 @@ function renderEntity(x,y,texture){
         0,0,
         96,96,
         calcX(x),calcY(y),
-        canvas.width/15,canvas.height/9,
+        stage.width/15,stage.height/9,
     );
 };
 
@@ -378,7 +468,7 @@ function renderBarriers(){
 };
 
 function frameMotion(speed){
-    return(speed / 40);
+    return(speed / 60);
 };
 
 /*Tilemap key
@@ -486,6 +576,7 @@ function updateTileMap(){
     barrierLayout();
     player.uploadPosition();
     for(let i = 0; i < enemyList.length; i++){
+        if(enemyList[i].state.hp <= 0){continue;}
         enemyList[i].uploadPosition();
     }
     
@@ -493,6 +584,8 @@ function updateTileMap(){
 
 function enemyActive(){
     for(let i = 0; i < enemyList.length; i++){
+        if(enemyList[i].state.hp <= 0){continue;}
+        enemyList[i].damage();
         enemyList[i].moveTowardPlayer();
         enemyList[i].motion();
         enemyList[i].activateWalls();
@@ -501,7 +594,9 @@ function enemyActive(){
 };
 
 function eachFrame(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0,0,stage.width,stage.height);
+    resetUi();
+    drawStatusBars(player.state.hp,player.state.mana,0.5);
     updateTileMap();
     scale();
     renderBarriers();
@@ -509,6 +604,10 @@ function eachFrame(){
     player.motion();
     player.activateWalls();
     player.render();
+    player.attackKey();
+    player.chargeAttack();
+    player.attackIcon();
+    renderStrikes();
 
     timeB = performance.now();
     timeDelta = timeB - timeA;

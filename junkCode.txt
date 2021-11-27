@@ -66,3 +66,373 @@
                     else if(idealHeading1 == 'right' && leftOpen){this.moveLeft();}
                     else if(idealHeading1 == 'down' && upOpen){this.moveUp();}
                     else if(idealHeading1 == 'up' && downOpen){this.moveDown();}
+
+
+                        attackFrom: function(){
+        if(this.state.attackCooldown > 0){
+            return;
+        }
+        this.state.atk1 = 0;
+        this.state.attackCooldown = 0;
+        if(n1){this.state.atk1 = 1;}
+        else if(n2){this.state.atk1 = 2;}
+        else if(n3){this.state.atk1 = 3;}
+        else if(n4){this.state.atk1 = 4;}
+        else if(n6){this.state.atk1 = 6;}
+        else if(n7){this.state.atk1 = 7;}
+        else if(n8){this.state.atk1 = 8;}
+        else if(n9){this.state.atk1 = 9;}
+    },
+    attackTo: function(){
+        if(this.state.attackCooldown > 0 || this.state.atk1 == 0 || this.state.atk2 != 0){
+            return;
+        }
+        if(n1 & this.state.atk1 != 1){this.state.atk2 = 1;}
+        else if(n2 & this.state.atk1 != 2){this.state.atk2 = 2;}
+        else if(n3 & this.state.atk1 != 3){this.state.atk2 = 3;}
+        else if(n4 & this.state.atk1 != 4){this.state.atk2 = 4;}
+        else if(n6 & this.state.atk1 != 6){this.state.atk2 = 6;}
+        else if(n7 & this.state.atk1 != 7){this.state.atk2 = 7;}
+        else if(n8 & this.state.atk1 != 8){this.state.atk2 = 8;}
+        else if(n9 & this.state.atk1 != 9){this.state.atk2 = 9;}
+
+        if(this.state.atk2 != 0){
+            this.state.attackCooldown = 240 / fps;
+        }
+    },
+    renderAttack: function(){
+        if(this.state.attackCooldown <= 0){
+            return;
+        }
+        ctx.fillStyle = 'white';
+        let indicatorSide = 0.4; 
+        let attackCenterX = (Math.round(this.state.x) + this.state.x) / 2; 
+        let attackCenterY = (Math.round(this.state.y) + this.state.y) / 2;
+        var atkX1=0,atkY1=0,atkX2=0,atkY2=0;
+        if(this.state.atk1 == 1){atkX1 = -1; atkY1 = -1;}
+        if(this.state.atk1 == 2){atkY1 = -1;}
+        if(this.state.atk1 == 3){atkX1 = 1; atkY1 = -1;}
+        if(this.state.atk1 == 4){atkX1 = -1;}
+        if(this.state.atk1 == 6){atkX1 = 1;}
+        if(this.state.atk1 == 7){atkX1 = -1; atkY1 = 1;}
+        if(this.state.atk1 == 8){atkY1 = 1;}
+        if(this.state.atk1 == 9){atkX1 = 1; atkY1 = 1;}
+        if(this.state.atk2 == 1){atkX2 = -1; atkY2 = -1;}
+        if(this.state.atk2 == 2){atkY2 = -1;}
+        if(this.state.atk2 == 3){atkX2 = 1; atkY2 = -1;}
+        if(this.state.atk2 == 4){atkX2 = -1;}
+        if(this.state.atk2 == 6){atkX2 = 1;}
+        if(this.state.atk2 == 7){atkX2 = -1; atkY2 = 1;}
+        if(this.state.atk2 == 8){atkY2 = 1;}
+        if(this.state.atk2 == 9){atkX2 = 1; atkY2 = 1;}
+        //+ atkX1 + i * atkX2 / 10
+        for(let i = 0; i < 4 - this.state.attackCooldown; i++){
+            ctx.fillRect(
+                calcX(attackCenterX + ((4-i)*atkX1 + i * atkX2) / 2) + (1 - indicatorSide) * stage.width/30,
+                calcY(attackCenterY + ((4-i)*atkY1 + i * atkY2) / 2) + (1 - indicatorSide) * stage.height/18,
+                indicatorSide * stage.width / 15,indicatorSide * stage.height / 9
+            );
+        }
+        this.state.attackCooldown -= 1;
+        if(this.state.attackCooldown <= 0){
+            this.state.atk1 = 0;
+            this.state.atk2 = 0;
+        }
+    }
+
+    attack: {
+        right: {
+            up: function(length){
+                player.state.attackBeginX = 1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = 1;
+                player.state.attackEndY = length;
+            },
+            down: function(length){
+                player.state.attackBeginX = 1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = 1;
+                player.state.attackEndY = -length;
+            },
+            out: function(length){
+                player.state.attackBeginX = 1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = 1+length;
+                player.state.attackEndY = 0;
+            }
+        },
+        left: {
+            up: function(length){
+                player.state.attackBeginX = -1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = -1;
+                player.state.attackEndY = length;
+            },
+            down: function(length){
+                player.state.attackBeginX = -1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = -1;
+                player.state.attackEndY = -length;
+            },
+            out: function(length){
+                player.state.attackBeginX = -1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = -1-length;
+                player.state.attackEndY = 0;
+            }
+        },
+        up: {
+            right: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = 1;
+                player.state.attackEndX = length;
+                player.state.attackEndY = 1;
+            },
+            left: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = 1;
+                player.state.attackEndX = -length;
+                player.state.attackEndY = 1;
+            },
+            out: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = 1;
+                player.state.attackEndX = 0;
+                player.state.attackEndY = 1+length;
+            }
+        },
+        down: {
+            right: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = -1;
+                player.state.attackEndX = length;
+                player.state.attackEndY = -1;
+            },
+            left: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = -1;
+                player.state.attackEndX = -length;
+                player.state.attackEndY = -1;
+            },
+            out: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = -1;
+                player.state.attackEndX = 0;
+                player.state.attackEndY = -1-length;
+            }
+        }
+    },
+    attackInput: function(reach){
+        if(this.state.attackCooldown > 0){
+            this.state.attackCooldown -= 1;
+            return;
+        }
+        this.state.attackBeginX = 0;
+        this.state.attackBeginY = 0;
+        this.state.attackEndX = 0;
+        this.state.attackEndY = 0;
+        this.state.attackCooldown = 0;
+        if(n6){
+            if(n5){this.attack.right.out(reach); this.state.attackCooldown = 20;}
+            else if(n9){this.attack.right.up(reach); this.state.attackCooldown = 20;}
+            else if(n3){this.attack.right.down(reach); this.state.attackCooldown = 20;}
+        }
+        if(n4 && !n6){
+            if(n5){this.attack.left.out(reach); this.state.attackCooldown = 20;}
+            else if(n7){this.attack.left.up(reach); this.state.attackCooldown = 20;}
+            else if(n1){this.attack.left.down(reach); this.state.attackCooldown = 20;}
+        }
+        if(n8 && !n6 && !n4){
+            if(n5){this.attack.up.out(reach); this.state.attackCooldown = 20;}
+            else if(n9){this.attack.up.right(reach); this.state.attackCooldown = 20;}
+            else if(n7){this.attack.up.left(reach); this.state.attackCooldown = 20;}
+        }
+        if(n2 && !n6 && !n4 && !n8){
+            if(n5){{this.attack.down.out(reach); this.state.attackCooldown = 20;}}
+            else if(n3){{this.attack.down.right(reach); this.state.attackCooldown = 20;}}
+            else if(n1){{this.attack.down.left(reach); this.state.attackCooldown = 20;}}
+        }
+    },
+    renderAttack: function(){
+        if(this.state.attackCooldown <= 10){
+            return;
+        }
+        let indicatorSide = 0.4; 
+        ctx.fillStyle = 'white';
+        let attackCenterX = (Math.round(this.state.x) + this.state.x) / 2; 
+        let attackCenterY = (Math.round(this.state.y) + this.state.y) / 2;
+        let i = 20-this.state.attackCooldown;
+        indicatorSide = 0.4 - 0.02 * i
+        //for(let i = 0; i < 10 - this.state.attackCooldown; i++){   
+            ctx.fillRect(
+                calcX(attackCenterX + ((2 - i/4) * this.state.attackBeginX + i/4 * this.state.attackEndX) / 2) + (1 - indicatorSide) * stage.width/30,
+                calcY(attackCenterY + ((2 - i/4) * this.state.attackBeginY + i/4 * this.state.attackEndY) / 2) + (1 - indicatorSide) * stage.height/18,
+                indicatorSide * stage.width / 15,indicatorSide * stage.height / 9
+            );
+        //}
+    }
+
+        attack: {
+        right: {
+            up: function(length){
+                player.state.attackBeginX = 1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = 1;
+                player.state.attackEndY = length;
+            },
+            down: function(length){
+                player.state.attackBeginX = 1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = 1;
+                player.state.attackEndY = -length;
+            },
+            out: function(length){
+                player.state.attackBeginX = 1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = 1+length;
+                player.state.attackEndY = 0;
+            }
+        },
+        left: {
+            up: function(length){
+                player.state.attackBeginX = -1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = -1;
+                player.state.attackEndY = length;
+            },
+            down: function(length){
+                player.state.attackBeginX = -1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = -1;
+                player.state.attackEndY = -length;
+            },
+            out: function(length){
+                player.state.attackBeginX = -1;
+                player.state.attackBeginY = 0;
+                player.state.attackEndX = -1-length;
+                player.state.attackEndY = 0;
+            }
+        },
+        up: {
+            right: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = 1;
+                player.state.attackEndX = length;
+                player.state.attackEndY = 1;
+            },
+            left: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = 1;
+                player.state.attackEndX = -length;
+                player.state.attackEndY = 1;
+            },
+            out: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = 1;
+                player.state.attackEndX = 0;
+                player.state.attackEndY = 1+length;
+            }
+        },
+        down: {
+            right: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = -1;
+                player.state.attackEndX = length;
+                player.state.attackEndY = -1;
+            },
+            left: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = -1;
+                player.state.attackEndX = -length;
+                player.state.attackEndY = -1;
+            },
+            out: function(length){
+                player.state.attackBeginX = 0;
+                player.state.attackBeginY = -1;
+                player.state.attackEndX = 0;
+                player.state.attackEndY = -1-length;
+            }
+        }
+    },
+    attackInput: function(reach){
+        if(this.state.attackCooldown > 0){
+            this.state.attackCooldown -= 1;
+            return;
+        }
+        this.state.attackBeginX = 0;
+        this.state.attackBeginY = 0;
+        this.state.attackEndX = 0;
+        this.state.attackEndY = 0;
+        this.state.attackCooldown = 0;
+        if(n6){
+            this.attack.right.out(reach); 
+            this.state.attackCooldown = 20;
+        }
+        if(n4){
+            this.attack.left.out(reach); 
+            this.state.attackCooldown = 20;
+        }
+        if(n8){
+            this.attack.up.out(reach); 
+            this.state.attackCooldown = 20;
+        }
+        if(n2){
+            this.attack.down.out(reach); 
+            this.state.attackCooldown = 20;
+        }
+        /*
+        if(n6){
+            if(n5){this.attack.right.out(reach); this.state.attackCooldown = 60;}
+            else if(n9){this.attack.right.up(reach); this.state.attackCooldown = 60;}
+            else if(n3){this.attack.right.down(reach); this.state.attackCooldown = 60;}
+        }
+        if(n4 && !n6){
+            if(n5){this.attack.left.out(reach); this.state.attackCooldown = 60;}
+            else if(n7){this.attack.left.up(reach); this.state.attackCooldown = 60;}
+            else if(n1){this.attack.left.down(reach); this.state.attackCooldown = 60;}
+        }
+        if(n8 && !n6 && !n4){
+            if(n5){this.attack.up.out(reach); this.state.attackCooldown = 60;}
+            else if(n9){this.attack.up.right(reach); this.state.attackCooldown = 60;}
+            else if(n7){this.attack.up.left(reach); this.state.attackCooldown = 60;}
+        }
+        if(n2 && !n6 && !n4 && !n8){
+            if(n5){{this.attack.down.out(reach); this.state.attackCooldown = 60;}}
+            else if(n3){{this.attack.down.right(reach); this.state.attackCooldown = 60;}}
+            else if(n1){{this.attack.down.left(reach); this.state.attackCooldown = 60;}}
+        }*/
+    },
+    renderAttack: function(cooldown, reach){
+        if(this.state.attackCooldown < cooldown - 2 * reach){
+            return;
+        }
+        let indicatorLevels = 2;
+        let indicatorSide = 0.4; 
+        let attackCenterX = (Math.round(this.state.x) + this.state.x) / 2; 
+        let attackCenterY = (Math.round(this.state.y) + this.state.y) / 2;
+        let innerFillRatio = 0.8;
+        for(let i = ((cooldown - this.state.attackCooldown) / reach - 1) / 2; i <= cooldown - this.state.attackCooldown; i += 1 / indicatorLevels){
+            if(checkOccupiedTile(
+                    Math.round(attackCenterX + this.state.attackBeginX + (i / reach / 2)*(this.state.attackEndX - this.state.attackBeginX)),
+                    Math.round(attackCenterY + this.state.attackBeginY + (i / reach / 2)*(this.state.attackEndY - this.state.attackBeginY)))
+                    == 1 || 
+                checkOccupiedTile(
+                    Math.round(attackCenterX + this.state.attackBeginX + (i / reach / 2)*(this.state.attackEndX - this.state.attackBeginX)),
+                    Math.round(attackCenterY + this.state.attackBeginY + (i / reach / 2)*(this.state.attackEndY - this.state.attackBeginY)))
+                    == undefined
+            ){break;}
+            ctx.fillStyle = 'rgb(255,165,165)';   
+            ctx.fillRect(
+                calcX(attackCenterX + this.state.attackBeginX + (i / reach / 2)*(this.state.attackEndX - this.state.attackBeginX)) + (1 - indicatorSide) * stage.width/30,
+                calcY(attackCenterY + this.state.attackBeginY + (i / reach / 2)*(this.state.attackEndY - this.state.attackBeginY)) + (1 - indicatorSide) * stage.height/18,
+                indicatorSide * stage.width / 15,indicatorSide * stage.height / 9
+            );
+            ctx.fillStyle = 'white';
+            ctx.fillRect(
+                calcX(attackCenterX + this.state.attackBeginX + (i / reach / 2)*(this.state.attackEndX - this.state.attackBeginX)) + (1 - innerFillRatio * indicatorSide) * stage.width/30,
+                calcY(attackCenterY + this.state.attackBeginY + (i / reach / 2)*(this.state.attackEndY - this.state.attackBeginY)) + (1 - innerFillRatio * indicatorSide) * stage.height/18,
+                innerFillRatio * indicatorSide * stage.width / 15,innerFillRatio * indicatorSide * stage.height / 9
+            );
+            indicatorSide -= (0.4 / 5 / indicatorLevels / reach);
+        }
+    }
